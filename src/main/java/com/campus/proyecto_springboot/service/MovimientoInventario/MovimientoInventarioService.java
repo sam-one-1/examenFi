@@ -1,6 +1,8 @@
 package com.campus.proyecto_springboot.service.MovimientoInventario;
 
 import com.campus.proyecto_springboot.model.MovimientoInventario;
+import com.campus.proyecto_springboot.model.TipoMovimiento;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,4 +22,6 @@ public interface MovimientoInventarioService {
 
     // Transferencia atómica entre bodegas
     void realizarTransferencia(Long idOrigen, Long idDestino, Long idProducto, int cantidad);
+
+    List<MovimientoInventario> buscarPorFiltros(TipoMovimiento tipo, LocalDateTime desde, LocalDateTime hasta, Long productoId);
 }

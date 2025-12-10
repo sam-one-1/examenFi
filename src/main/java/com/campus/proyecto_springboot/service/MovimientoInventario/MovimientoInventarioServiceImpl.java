@@ -1,5 +1,6 @@
 package com.campus.proyecto_springboot.service.MovimientoInventario;
 
+import com.campus.proyecto_springboot.examen.MovimientoSpecification;
 import com.campus.proyecto_springboot.exception.InvalidInputException;
 import com.campus.proyecto_springboot.exception.ResourceNotFoundException;
 import com.campus.proyecto_springboot.model.*;
@@ -11,6 +12,7 @@ import com.campus.proyecto_springboot.service.Auditoria.AuditoriaContextService;
 import com.campus.proyecto_springboot.service.StockBodega.StockBodegaService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -380,5 +382,17 @@ public class MovimientoInventarioServiceImpl implements MovimientoInventarioServ
         mov.setDetalles(detalles);
 
         return mov;
+    }
+
+    @Override
+    public List<MovimientoInventario> buscarPorFiltros(TipoMovimiento tipo, LocalDateTime desde, LocalDateTime hasta, Long productoId) {
+        // Combina los filtros que lleguen; los nulos se ignoran
+        Specification<MovimientoInventario> spec = Specification.allOf(
+                MovimientoSpecification.tipoEs(tipo),
+                MovimientoSpecification.fechaEntre(desde, hasta),
+                MovimientoSpecification.productoEs(productoId)
+        );
+
+        return movimientoInventarioRepository.findAll(spec);
     }
 }

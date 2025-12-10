@@ -4,7 +4,7 @@ import com.campus.proyecto_springboot.model.Producto;
 import com.campus.proyecto_springboot.repository.ProductoRepository;
 import com.campus.proyecto_springboot.security.CurrentUserService;
 import com.campus.proyecto_springboot.service.Auditoria.AuditoriaContextService;
-import com.campus.proyecto_springboot.specification.ProductoSpecification;
+import com.campus.proyecto_springboot.examen.ProductoSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;

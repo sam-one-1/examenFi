@@ -1,12 +1,10 @@
-package com.campus.proyecto_springboot.specification;
+package com.campus.proyecto_springboot.examen;
+
 
 import com.campus.proyecto_springboot.model.Producto;
 import com.campus.proyecto_springboot.model.StockBodega;
 import org.springframework.data.jpa.domain.Specification;
 
-/**
- * Filtros dinámicos para Producto.
- */
 public class ProductoSpecification {
 
     // Filtra por categoría exacta ignorando mayúsculas/minúsculas
