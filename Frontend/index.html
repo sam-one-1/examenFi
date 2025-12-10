@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>LogiTrack - Acceso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+<div class="app-shell">
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">LT</div>
+        <div class="brand-text">
+          <div class="brand-title">LogiTrack S.A.</div>
+          <div class="brand-subtitle">Inventario centralizado y auditoría</div>
+        </div>
+      </div>
+
+      <nav class="nav-main" aria-label="Navegación principal">
+        <button class="nav-btn nav-btn--ghost" data-nav="login">
+          <span class="icon">🔑</span>
+          <span>Login</span>
+        </button>
+        <button class="nav-btn nav-btn--ghost" data-nav="register">
+          <span class="icon">🧾</span>
+          <span>Registro</span>
+        </button>              
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main" role="main">
+    <div class="main-inner">
+      <!-- Panel lateral -->
+      <aside class="intro-panel" aria-label="Introducción">
+        <div class="intro-badge" aria-hidden="true">
+          <span class="intro-badge-dot"></span>
+          <span>Backend Spring Boot · Inventario distribuido</span>
+        </div>
+        <h1 class="intro-title">
+          Controla tus <span>bodegas</span>, movimientos y auditorías desde un solo lugar.
+        </h1>
+        <p class="intro-text">
+          Esta interfaz te permite registrarte, iniciar sesión y obtener tu token JWT para usar el panel
+          de LogiTrack conectado al backend Spring Boot + PostgreSQL.
+        </p>
+
+        <div class="intro-grid" aria-hidden="true">
+          <div class="intro-card">
+            <div class="intro-card-title">Seguridad</div>
+            <div class="intro-card-value">JWT + Roles</div>
+            <p class="intro-footnote">Acceso protegido para operaciones críticas.</p>
+          </div>
+          <div class="intro-card">
+            <div class="intro-card-title">Auditoría</div>
+            <div class="intro-card-value">Triggers en DB</div>
+            <p class="intro-footnote">Trazabilidad de cambios en tablas clave.</p>
+          </div>
+        </div>
+
+        <p class="intro-footnote">
+          1. Regístrate · 2. Inicia sesión · 3. Accede al panel y prueba la API.
+        </p>
+      </aside>
+
+      <!-- Panel contenido (login/register) -->
+      <section class="content-panel" aria-label="Acceso a LogiTrack">
+        <div class="tabs" role="tablist" aria-label="Secciones de acceso">
+          <button class="tab-btn tab-btn--active" role="tab" aria-selected="true"
+                  aria-controls="section-login" id="tab-login">
+            <span class="icon">🔑</span>
+            <span>Login</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false"
+                  aria-controls="section-register" id="tab-register">
+            <span class="icon">🧾</span>
+            <span>Registro</span>
+          </button>
+        </div>
+
+        <div id="alertArea" class="mt-1" aria-live="polite"></div>
+
+        <div class="content-body">
+          <!-- LOGIN -->
+          <section id="section-login" class="section section--active" role="tabpanel"
+                   aria-labelledby="tab-login">
+            <h2 class="section-title">Iniciar sesión</h2>
+            <p class="section-subtitle">
+              Usa tu documento y contraseña para obtener un token JWT y acceder al panel.
+            </p>
+
+            <form id="loginForm" aria-label="Formulario de login">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="loginDocumento">Documento</label>
+                  <input id="loginDocumento" name="documento" type="text"
+                         autocomplete="username" required
+                         placeholder="Ej: 123456789" />
+                </div>
+                <div class="form-group">
+                  <label for="loginPassword">Contraseña</label>
+                  <input id="loginPassword" name="password" type="password"
+                         autocomplete="current-password" required
+                         placeholder="Tu contraseña" />
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-primary">
+                  <span class="icon">➡️</span>
+                  <span>Entrar</span>
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <!-- REGISTER -->
+          <section id="section-register" class="section" role="tabpanel"
+                   aria-labelledby="tab-register">
+            <h2 class="section-title">Registro de usuario</h2>
+            <p class="section-subtitle">
+              Crea un usuario en la API. Todos los nuevos usuarios se registrarán como usuarios normales,
+              si quiere permisos de <b>ADMIN</b>, habla con un administrador para obtener el rol <b>ADMIN</b>
+            </p>
+
+            <form id="registerForm" aria-label="Formulario de registro">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="regNombre">Nombre</label>
+                  <input id="regNombre" name="nombre" type="text" required placeholder="Nombre" />
+                </div>
+                <div class="form-group">
+                  <label for="regApellido">Apellido</label>
+                  <input id="regApellido" name="apellido" type="text" required placeholder="Apellido" />
+                </div>
+                <div class="form-group">
+                  <label for="regDocumento">Documento</label>
+                  <input id="regDocumento" name="documento" type="text" required placeholder="Documento único" />
+                </div>
+                <div class="form-group">
+                  <label for="regPassword">Contraseña</label>
+                  <input id="regPassword" name="password" type="password" required placeholder="Mínimo 6 caracteres" />
+                </div>
+              </div>
+
+              <div class="btn-row">
+                <button type="submit" class="btn btn-primary">
+                  <span class="icon">✅</span>
+                  <span>Registrar</span>
+                </button>
+              </div>
+
+            </form>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    LogiTrack · Acceso · Frontend HTML/CSS/JS conectado a Spring Boot + PostgreSQL
+  </footer>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>LogiTrack - Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+<div class="app-shell">
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">LT</div>
+        <div class="brand-text">
+          <div class="brand-title">LogiTrack S.A.</div>
+          <div class="brand-subtitle">Panel de gestión y auditoría</div>
+        </div>
+      </div>
+
+      <nav class="nav-main" aria-label="Navegación del panel">
+        <a class="nav-btn nav-btn--ghost" href="index.html">
+          <span class="icon">👤</span>
+          <span>Cambiar usuario</span>
+        </a>
+        
+        <a class="nav-btn nav-btn--ghost" href="http://localhost:8080/swagger-ui.html" target="_blank">
+          <span class="icon">📚</span>
+          <span>Swagger API</span>
+        </a>
+
+        <span id="userChip" class="user-chip" hidden>
+          <span class="user-dot" aria-hidden="true"></span>
+          <span id="userChipText">Sesión activa</span>
+        </span>
+
+        <button id="logoutBtn" class="nav-btn nav-btn--ghost" hidden>
+          <span class="icon">🚪</span>
+          <span>Cerrar sesión</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main" role="main">
+    <div class="main-inner">
+      <!-- Panel lateral -->
+      <aside class="intro-panel" aria-label="Resumen del sistema">
+        <div class="intro-badge" aria-hidden="true">
+          <span class="intro-badge-dot"></span>
+          <span>Sesión autenticada · JWT activo</span>
+        </div>
+        <h1 class="intro-title">
+          Panel de <span>inventario</span> y auditoría en tiempo real.
+        </h1>
+        <p class="intro-text">
+          Desde aquí podés probar los endpoints de bodegas, productos, movimientos de inventario, auditorías
+          y reportes globales, utilizando tu token JWT almacenado en el navegador.
+        </p>
+
+        <div class="intro-grid" aria-hidden="true">
+          <div class="intro-card">
+            <div class="intro-card-title">Bodegas</div>
+            <div class="intro-card-value">Entradas / Salidas</div>
+            <p class="intro-footnote">Registra stock y movimientos entre sedes.</p>
+          </div>
+          <div class="intro-card">
+            <div class="intro-card-title">Auditoría</div>
+            <div class="intro-card-value">Triggers</div>
+            <p class="intro-footnote">Cada cambio queda trazado en la base de datos.</p>
+          </div>
+        </div>
+
+        <p class="intro-footnote">
+          Si tu sesión expira o el token no es válido, serás redirigido a la pantalla de login.
+        </p>
+      </aside>
+
+      <!-- Panel principal -->
+      <section class="content-panel" aria-label="Panel de API">
+        <div id="alertArea" class="mt-1" aria-live="polite"></div>
+
+        <div class="tabs mt-1" role="tablist" aria-label="Módulos del sistema">
+          <button class="tab-btn tab-btn--active btn-sm" type="button"
+                  data-subtab="bodegas">
+            📦 Bodegas
+          </button>
+          <button class="tab-btn btn-sm" type="button" data-subtab="productos">
+            🧾 Productos
+          </button>
+          <button class="tab-btn btn-sm" type="button" data-subtab="movimientos">
+            🔁 Movimientos
+          </button>
+          <button class="tab-btn btn-sm" type="button" data-subtab="auditorias">
+            🕵️ Auditorías
+          </button>
+          <button class="tab-btn btn-sm" type="button" data-subtab="usuarios" data-admin-only>
+            👥 Usuarios
+          </button>
+          <button class="tab-btn btn-sm" type="button" data-subtab="reportes">
+            📊 Reportes
+          </button>
+        </div>
+
+        <div class="content-body">
+          <!-- BODEGAS -->
+          <section id="subtab-bodegas" class="subsection" style="display: block;">
+            <h2 class="section-title">Bodegas</h2>
+            <p class="section-subtitle" id="bodegasSubtitle">Crear y listar bodegas.</p>
+
+            <div class="btn-row" style="margin-bottom: 1rem;">
+              <button type="button" id="btnCargarBodegas" class="btn btn-primary btn-sm">
+                <span class="icon">🔄</span>
+                <span>Cargar bodegas</span>
+              </button>
+            </div>
+
+            <form id="bodegaForm" data-admin-only>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="bodNombre">Nombre</label>
+                  <input id="bodNombre" type="text" required placeholder="Nombre de bodega" />
+                </div>
+                <div class="form-group">
+                  <label for="bodUbicacion">Ubicación</label>
+                  <input id="bodUbicacion" type="text" required placeholder="Ciudad / Dirección" />
+                </div>
+                <div class="form-group">
+                  <label for="bodCapacidad">Capacidad</label>
+                  <input id="bodCapacidad" type="number" min="0" required placeholder="Capacidad en unidades" />
+                </div>
+                <div class="form-group">
+                  <label for="bodEncargadoId">Encargado</label>
+                  <select id="bodEncargadoId">
+                    <option value="">Selecciona un encargado (opcional)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <span class="icon">➕</span>
+                  <span>Crear bodega</span>
+                </button>
+                <button type="button" id="btnListBodegas" class="btn btn-outline btn-sm">
+                  <span class="icon">📋</span>
+                  <span>Listar bodegas</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="table-wrapper" id="bodegasTableWrapper" aria-label="Listado de bodegas"></div>
+          </section>
+
+          <!-- PRODUCTOS -->
+          <section id="subtab-productos" class="subsection" hidden style="display: none;">
+            <h2 class="section-title">Productos</h2>
+            <p class="section-subtitle" id="productosSubtitle">Crear productos, listarlos y ver stock bajo.</p>
+
+            <div class="btn-row" style="margin-bottom: 1rem;">
+              <button type="button" id="btnCargarProductos" class="btn btn-primary btn-sm">
+                <span class="icon">🔄</span>
+                <span>Cargar productos</span>
+              </button>
+            </div>
+
+            <form id="productoForm" data-admin-only>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="prodNombre">Nombre</label>
+                  <input id="prodNombre" type="text" required placeholder="Nombre de producto" />
+                </div>
+                <div class="form-group">
+                  <label for="prodCategoria">Categoría</label>
+                  <input id="prodCategoria" type="text" required placeholder="Categoría" />
+                </div>
+                <div class="form-group">
+                  <label for="prodBodegaId">Bodega</label>
+                  <select id="prodBodegaId" required>
+                    <option value="">Selecciona una bodega</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="prodStock">Stock inicial</label>
+                  <input id="prodStock" type="number" min="0" required placeholder="0" />
+                </div>
+                <div class="form-group">
+                  <label for="prodPrecio">Precio</label>
+                  <input id="prodPrecio" type="number" min="0" step="0.01" required placeholder="0.00" />
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-primary btn-sm">
+                  <span class="icon">➕</span>
+                  <span>Crear producto</span>
+                </button>
+                <button type="button" id="btnListProductos" class="btn btn-outline btn-sm">
+                  <span class="icon">📋</span>
+                  <span>Listar productos</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="table-wrapper" id="productosTableWrapper" aria-label="Listado de productos"></div>
+            
+            <!-- Apartado de productos con stock bajo -->
+            <div style="margin-top: 2rem;">
+              <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 1rem;">
+                <span class="icon">⚠️</span>
+                Productos con Stock Bajo (&lt; 10)
+              </h3>
+              <div class="table-wrapper" id="productosStockBajoWrapper" aria-label="Productos con stock bajo"></div>
+            </div>
+          </section>
+
+          <!-- MOVIMIENTOS -->
+          <section id="subtab-movimientos" class="subsection" hidden style="display: none;">
+            <h2 class="section-title">Movimientos de inventario</h2>
+            <p class="section-subtitle">
+              Registrar movimientos (entrada/salida/transferencia) y filtrar por fechas.
+              Los datos se envían como JSON al backend, pero acá lo cargás con un formulario.
+            </p>
+            
+            <!-- Información del usuario actual -->
+            <div id="usuarioActualInfo" class="alert alert-info" style="margin-bottom: 1rem;">
+              <strong>Usuario actual:</strong> <span id="usuarioActualNombre">Cargando...</span>
+            </div>
+          
+            <!-- FORM MOVIMIENTO -->
+            <form id="movimientoForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="movTipo">Tipo de movimiento</label>
+                  <select id="movTipo" required>
+                    <option value="">Selecciona...</option>
+                    <option value="ENTRADA">Entrada</option>
+                    <option value="SALIDA">Salida</option>
+                    <option value="TRANSFERENCIA">Transferencia</option>
+                  </select>
+                </div>
+          
+                <div class="form-group" id="movBodegaOrigenGroup">
+                  <label for="movBodegaOrigen">Bodega origen</label>
+                  <select id="movBodegaOrigen">
+                    <option value="">Selecciona bodega origen</option>
+                  </select>
+                </div>
+          
+                <div class="form-group" id="movBodegaDestinoGroup">
+                  <label for="movBodegaDestino">Bodega destino</label>
+                  <select id="movBodegaDestino">
+                    <option value="">Selecciona bodega destino</option>
+                  </select>
+                </div>
+              </div>
+          
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="movProductoId">Producto</label>
+                  <select id="movProductoId" required>
+                    <option value="">Selecciona un producto</option>
+                  </select>
+                </div>
+          
+                <div class="form-group">
+                  <label for="movCantidad">Cantidad</label>
+                  <input id="movCantidad" type="number" min="1" required
+                         placeholder="Cantidad a mover" />
+                </div>
+              </div>
+          
+              <p class="section-subtitle">
+                Por ahora se registra un producto por movimiento. Si necesitas varios productos,
+                se puede extender esta sección más adelante.
+              </p>
+          
+              <div class="btn-row">
+                <!-- Solo ADMIN debería poder crear, lo marcamos para permisos en front -->
+                <button type="submit"
+                        class="btn btn-primary btn-sm">
+                  <span class="icon">📥</span>
+                  <span>Crear movimiento</span>
+                </button>
+          
+                <button type="button" id="btnListMovimientos" class="btn btn-outline btn-sm">
+                  <span class="icon">📋</span>
+                  <span>Listar movimientos</span>
+                </button>
+              </div>
+            </form>
+          
+            <!-- FILTRO POR FECHAS -->
+            <form id="movimientosFechaForm" class="mt-2">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="movDesde">Desde</label>
+                  <input id="movDesde" type="datetime-local" />
+                </div>
+                <div class="form-group">
+                  <label for="movHasta">Hasta</label>
+                  <input id="movHasta" type="datetime-local" />
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-outline btn-sm">
+                  <span class="icon">🔎</span>
+                  <span>Filtrar por fecha</span>
+                </button>
+              </div>
+            </form>
+          
+            <div class="table-wrapper" id="movimientosTableWrapper" aria-label="Listado de movimientos"></div>
+            
+            <!-- Modal de detalles de movimiento -->
+            <div id="movimientoDetalleModal" class="modal" style="display: none;">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Detalles del Movimiento</h3>
+                  <button class="modal-close" id="cerrarModalDetalle">&times;</button>
+                </div>
+                <div class="modal-body" id="movimientoDetalleContent">
+                  <!-- Contenido dinámico -->
+                </div>
+              </div>
+            </div>
+          </section>
+          
+
+          <!-- AUDITORÍAS -->
+          <section id="subtab-auditorias" class="subsection" hidden style="display: none;">
+            <h2 class="section-title">Auditorías</h2>
+            <p class="section-subtitle">Consultar auditorías por usuario, por tipo o todas.</p>
+
+            <form id="auditoriaFiltroForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="audDocumento">Documento de usuario (opcional)</label>
+                  <input id="audDocumento" type="text" placeholder="Documento del usuario" />
+                </div>
+                <div class="form-group">
+                  <label for="audTipoOperacion">Tipo de operación (opcional)</label>
+                  <select id="audTipoOperacion">
+                    <option value="">-- Cualquiera --</option>
+                    <option value="INSERT">INSERT</option>
+                    <option value="UPDATE">UPDATE</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                </div>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn btn-outline btn-sm">
+                  <span class="icon">🔎</span>
+                  <span>Buscar</span>
+                </button>
+                <button type="button" id="btnAudTodas" class="btn btn-outline btn-sm">
+                  <span class="icon">📋</span>
+                  <span>Todas</span>
+                </button>
+              </div>
+            </form>
+
+            <div class="table-wrapper" id="auditoriasTableWrapper" aria-label="Listado de auditorías"></div>
+            
+            <!-- Modal de detalles de auditoría -->
+            <div id="auditoriaDetalleModal" class="modal" style="display: none;">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Detalles de la Auditoría</h3>
+                  <button class="modal-close" id="cerrarModalAuditoria">&times;</button>
+                </div>
+                <div class="modal-body" id="auditoriaDetalleContent"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- USUARIOS -->
+          <section id="subtab-usuarios" class="subsection" hidden style="display: none;" data-admin-only>
+            <h2 class="section-title">Gestión de Usuarios</h2>
+            <p class="section-subtitle">
+              Lista todos los usuarios y gestiona sus roles. Solo los administradores pueden cambiar roles de usuarios.
+            </p>
+
+            <div class="btn-row">
+              <button type="button" id="btnListUsuarios" class="btn btn-primary btn-sm">
+                <span class="icon">📋</span>
+                <span>Listar usuarios</span>
+              </button>
+            </div>
+
+            <div class="table-wrapper" id="usuariosTableWrapper" aria-label="Listado de usuarios"></div>
+
+            <div id="usuariosRolForm" style="display: none;" class="mt-2">
+              <h3 class="section-title">Cambiar Rol de Usuario</h3>
+              <form id="cambiarRolForm">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="usuarioIdRol">ID de Usuario</label>
+                    <input id="usuarioIdRol" type="number" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="usuarioNombreRol">Nombre</label>
+                    <input id="usuarioNombreRol" type="text" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="usuarioRolActual">Rol Actual</label>
+                    <input id="usuarioRolActual" type="text" readonly />
+                  </div>
+                  <div class="form-group">
+                    <label for="nuevoRol">Nuevo Rol</label>
+                    <select id="nuevoRol" required>
+                      <option value="">Selecciona...</option>
+                      <option value="USER">USER (Empleado)</option>
+                      <option value="ADMIN">ADMIN (Administrador)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="btn-row">
+                  <button type="submit" class="btn btn-primary btn-sm">
+                    <span class="icon">✅</span>
+                    <span>Cambiar Rol</span>
+                  </button>
+                  <button type="button" id="btnCancelarCambioRol" class="btn btn-outline btn-sm">
+                    <span class="icon">❌</span>
+                    <span>Cancelar</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <!-- REPORTES -->
+          <section id="subtab-reportes" class="subsection" hidden style="display: none;">
+            <h2 class="section-title">Reporte general</h2>
+            <p class="section-subtitle">
+              Consulta el resumen de stock por bodega y productos más movidos.
+            </p>
+
+            <div class="btn-row">
+              <button type="button" id="btnReporteResumen" class="btn btn-primary btn-sm">
+                <span class="icon">📊</span>
+                <span>Obtener resumen</span>
+              </button>
+            </div>
+
+            <div id="reportesOutput"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    LogiTrack · Panel · Frontend HTML/CSS/JS conectado a Spring Boot + PostgreSQL
+  </footer>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>
